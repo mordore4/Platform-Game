@@ -8,6 +8,8 @@ New levels can be added by:
 Author: Open Source - Contributor list can be seen in GitHub
 */
 
+//set true if you don't want to take damage while testing
+const TESTING_WITH_IMMORTALITY = false;
 
 //CONFIG
 const LEFT = 37;
@@ -178,7 +180,7 @@ function initialize_game() {
 	audio = document.getElementById("bgm");
 	audio.autoplay = true;
 	audio.loop = true;
-	
+
 	if (!musicMuted) {
 		audio.load();
 	}
@@ -246,7 +248,7 @@ function startLevel(levelNumber) {
 		var x = Math.floor((Math.random() * (900 - i * 300) + 1));
 		clouds[i] = new component();
 
-		let cloud = LEVEL_CLOUDS[levelNumber -1];
+		let cloud = LEVEL_CLOUDS[levelNumber - 1];
 		clouds[i].init(cloud.x, cloud.y, `Pictures/${cloud.name}.png`, x, 40, "image", 1);
 	}
 
@@ -330,23 +332,23 @@ function component() {
 			}
 		}
 
-	this.width = width;
-	this.initHeight = height; // to get squeezed height later
-	this.alpha = 1;
-	this.height = height;
+		this.width = width;
+		this.initHeight = height; // to get squeezed height later
+		this.alpha = 1;
+		this.height = height;
 
-	//change components position
-	this.speedX = 0
-	this.speedY = 0;
-	this.x = x;
-	this.y = y;
-	this.gravity = 1.5;
-	//indicates if the character is on the ground or not
-	this.hitGround = true;
+		//change components position
+		this.speedX = 0
+		this.speedY = 0;
+		this.x = x;
+		this.y = y;
+		this.gravity = 1.5;
+		//indicates if the character is on the ground or not
+		this.hitGround = true;
 
-	//angle
-	this.angle = 0;
-}
+		//angle
+		this.angle = 0;
+	}
 
 	//function to decide to decide what to display on screen, text, image or fill color
 	this.update = function (callback) {
@@ -410,7 +412,7 @@ function component() {
 	};
 
 	//gravity property
-	this.newPos = function() {
+	this.newPos = function () {
 		this.y += this.speedY; //increment y position with his speed
 		this.speedY += this.gravity; //increment the y speed with the gravity
 		this.x += this.speedX;
@@ -419,9 +421,9 @@ function component() {
 	};
 
 	//set floor on canvas
-	this.hitBottom = function() {
-		var rockbottom = gameArea.canvas.height - this.height -150;
-		if (this.y > rockbottom){
+	this.hitBottom = function () {
+		var rockbottom = gameArea.canvas.height - this.height - 150;
+		if (this.y > rockbottom) {
 			this.y = rockbottom;
 			this.hitGround = true;
 		}
@@ -451,13 +453,13 @@ function gameOver() {
 	}
 }
 
-function restartGame(){
+function restartGame() {
 	gameArea.stop();
 	initialize_game();
 }
 
-function gameComplete(){
-    state = 'complete';
+function gameComplete() {
+	state = 'complete';
 	var modal = document.getElementById('gameCompleteModal');
 	modal.style.display = "block";
 	gameArea.stop();
@@ -495,18 +497,18 @@ function startGameElements() {
 	background.update();
 }
 
-function flashScore(){
-    if(scoreBoard.color == "black"){
-        scoreBoard.color = "white";
-    }else{
-        scoreBoard.color = "black";
-   }
+function flashScore() {
+	if (scoreBoard.color == "black") {
+		scoreBoard.color = "white";
+	} else {
+		scoreBoard.color = "black";
+	}
 
-   if(gameArea.bonusActiveTime > 1200){
-        scoreBoard.color = "black";
-       clearInterval(gameArea.bonusInterval);
-   }
-    gameArea.bonusActiveTime += 150;
+	if (gameArea.bonusActiveTime > 1200) {
+		scoreBoard.color = "black";
+		clearInterval(gameArea.bonusInterval);
+	}
+	gameArea.bonusActiveTime += 150;
 }
 
 function flashCoinScore() {
@@ -523,7 +525,7 @@ function flashCoinScore() {
 	gameArea.coinScoreActiveTime += 150;
 }
 
- //Update game area for period defined in game area function, current 20th of a millisecond (50 times a second)
+//Update game area for period defined in game area function, current 20th of a millisecond (50 times a second)
 function updateGameArea() {
 	//loop for enemy collision
 	var pausemodal = document.getElementById('gamePauseModal');
@@ -549,15 +551,15 @@ function updateGameArea() {
 				enemyCharacters[i].setAlive(false);
 				incrementScore(100);
 				gameArea.bonusActiveTime = 0;
-				gameArea.bonusInterval = setInterval(flashScore,150);
+				gameArea.bonusInterval = setInterval(flashScore, 150);
 
 			}
 			else if (playerCharacter.crashWith(enemyCharacters[i])) {
-				let lives = 1000000000;
-				lives --
-				if (lives < -100000000) {
+				if (!TESTING_WITH_IMMORTALITY) {
 					gameArea.stop();
-				gameOver();
+					gameOver();
+				} else{
+					console.log("you died");
 				}
 			}
 		}
@@ -623,7 +625,7 @@ function updateGameArea() {
 		currentLevel++;
 
 		console.log(currentLevel);
-		if(currentLevel > LEVEL_CLOUDS.length) gameComplete();
+		if (currentLevel > LEVEL_CLOUDS.length) gameComplete();
 		else startLevel(currentLevel);
 
 	}
@@ -653,7 +655,7 @@ function updateGameArea() {
 					enemyCharacters[i].x += -4;
 				}
 
-			}else{
+			} else {
 				enemyCharacters[i].x += -2;
 			}
 
@@ -700,33 +702,33 @@ function incrementScore(value) {
 	gameArea.score += value;
 }
 
- //Stops player character from constantly moving after button move pressed
-function stopMove(){
-    playerCharacter.speedX = 0;
-    playerCharacter.speedY = 0;
-    if (playerCharacter.y < 0) {
-        playerCharacter.speedY = 0;
-        playerCharacter.y = 0;
-    }
-    if (playerCharacter.x < 0){
-        playerCharacter.speedX = 0;
-        playerCharacter.x = 0;
-    }
-    if (playerCharacter.x > gameArea.canvas.width-playerCharacter.width) {
-        playerCharacter.speedX = 0;
-        playerCharacter.x = gameArea.canvas.width-playerCharacter.width;
-    }
+//Stops player character from constantly moving after button move pressed
+function stopMove() {
+	playerCharacter.speedX = 0;
+	playerCharacter.speedY = 0;
+	if (playerCharacter.y < 0) {
+		playerCharacter.speedY = 0;
+		playerCharacter.y = 0;
+	}
+	if (playerCharacter.x < 0) {
+		playerCharacter.speedX = 0;
+		playerCharacter.x = 0;
+	}
+	if (playerCharacter.x > gameArea.canvas.width - playerCharacter.width) {
+		playerCharacter.speedX = 0;
+		playerCharacter.x = gameArea.canvas.width - playerCharacter.width;
+	}
 }
 
 function moveUp() {
-	if(playerCharacter.hitGround && playerCharacter.y >= 170){
+	if (playerCharacter.hitGround && playerCharacter.y >= 170) {
 		playerCharacter.speedY = -20;
 		playerCharacter.hitGround = false;
 	}
 }
 
 function moveDown() {
-    playerCharacter.speedY = 20;
+	playerCharacter.speedY = 20;
 }
 
 function moveLeft() {
